@@ -84,7 +84,7 @@
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <includes>
-               <!--
+<!--
                     <include>**/idp-server.xml</include>
                     <include>**/rp-server.xml</include>
 -->
@@ -95,7 +95,7 @@
             <directory>src/test/resources</directory>
             <filtering>false</filtering>
             <excludes>
-               <!--
+<!--
                     <exclude>**/idp-server.xml</exclude>
                     <exclude>**/rp-server.xml</exclude>
 -->
@@ -124,6 +124,28 @@
                </execution>
             </executions>
          </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>target/tomcat/idp/webapps</outputDirectory>
+              <resources>          
+                <resource>
+                  <directory>src/test/webapps</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>              
+            </configuration>            
+          </execution>
+        </executions>
+      </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -144,6 +166,9 @@
                            <type>war</type>
                            <overWrite>true</overWrite>
                            <outputDirectory>target/tomcat/idp/webapps/fediz-idp</outputDirectory>
+                           <excludes>
+                              **\/idp-servlet.xml
+                           </excludes>
                         </artifactItem>
                         <artifactItem>
                            <groupId>org.apache.cxf.fediz</groupId>

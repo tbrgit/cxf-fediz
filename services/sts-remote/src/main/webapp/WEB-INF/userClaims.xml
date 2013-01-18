@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<util:map id="userClaims">
+		<entry key="tintin"
+			value-ref="tintinClaims" />
+		<entry key="haddock"
+			value-ref="haddockClaims" />
+		<entry key="tournesol"
+			value-ref="tournesolClaims" />
+	</util:map>
+	
+	<util:map id="tintinClaims">
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+			value="Tintin" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+			value="Tintin" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+			value="tintin@mycompany.org" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+			value="User" />
+			
+	</util:map>
+	
+	<util:map id="haddockClaims">
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+			value="Haddock" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+			value="Haddock" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+			value="haddock@idp.org" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+			value="User,Manager,Admin" />
+	</util:map>
+	
+	<util:map id="tournesolClaims">
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+			value="Tournesol" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+			value="Tournesol" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+			value="tournesol@hereiam.org" />
+		<entry key="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+			value="" />			
+	</util:map>
+	
+	<util:list id="supportedClaims">
+		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</value>
+		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</value>
+		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</value>
+		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</value>
+	</util:list>
+
+</beans>

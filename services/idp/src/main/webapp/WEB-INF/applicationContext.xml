@@ -36,5 +36,7 @@
     
    <import resource="RPClaims.xml" />
 
+   <import resource="IDPPartners.xml" />
+
 </beans>
 

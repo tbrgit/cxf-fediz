@@ -134,14 +134,14 @@ public abstract class AbstractTests {
         sendHttpGet(url, user, password, 200, 403);        
     }
 
-    @org.junit.Ignore
+//    @org.junit.Ignore
     @org.junit.Test
     public void testUserAliceWrongPassword() throws Exception {
         String url = "https://localhost:" + getRpHttpsPort() + "/fedizhelloworld/secure/fedservlet";
         String user = "alice";
         String password = "alice";
-        //[TODO] Fix IDP return code from 500 to 401
-        sendHttpGet(url, user, password, 500, 0);        
+        //[DONE] Fix IDP return code from 500 to 401
+        sendHttpGet(url, user, password, 401, 0);        
     }
 
     @org.junit.Test
@@ -215,7 +215,10 @@ public abstract class AbstractTests {
             Assert.assertNotNull("Form field 'wa' not found", formFields.get("wa"));
             Assert.assertNotNull("Form field 'wresult' not found", formFields.get("wresult"));
             for (FormField formField : formFields) {
-                nvps.add(new BasicNameValuePair(formField.getName(), formField.getValues().get(0)));
+                if (formField.getUserValueCount() != 0) {
+                    nvps.add(new BasicNameValuePair(formField.getName(),
+                            formField.getValues().get(0)));
+                }
             }
             httppost.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
 

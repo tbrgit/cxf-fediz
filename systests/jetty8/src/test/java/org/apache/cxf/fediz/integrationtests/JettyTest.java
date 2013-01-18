@@ -48,6 +48,8 @@ public class JettyTest extends AbstractTests {
 
         System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
 
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.springframework.webflow", "debug");
+        
         idpHttpsPort = System.getProperty("idp.https.port");
         Assert.assertNotNull("Property 'idp.https.port' null", idpHttpsPort);
         rpHttpsPort = System.getProperty("rp.https.port");

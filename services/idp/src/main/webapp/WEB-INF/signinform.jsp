@@ -1,43 +1,47 @@
-<%@ page import="java.util.Set"%>
-<%@ page import="java.util.HashSet"%>
-<%@ page import="java.lang.reflect.Field"%>
-<%@ page import="org.apache.cxf.fediz.service.idp.FederationFilter"%>
-<%@ page import="org.apache.cxf.fediz.service.idp.HttpFormAuthenticationFilter"%>
-<%@ page import="org.apache.cxf.fediz.service.idp.IdpServlet"%>
-
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@page import="org.springframework.context.ApplicationContext"%>
+<%@page import="org.apache.cxf.BusFactory"%>
+<%@page import="org.apache.cxf.Bus"%>
+<%@page import="java.util.List"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
 <title>IDP SignIn Request Form</title>
 </head>
 <body>
-	<form method="POST" name="signinform">
-		<%--
-			Replicating the context.
-		--%>
-		<%
-		Set<String> ctx = new HashSet<String>();
-		Field[] fields = FederationFilter.class.getFields();
-		for (Field f : fields) {
-			if(f.getName().startsWith("PARAM_") && String.class.equals(f.getType())) { 
-				String key = (String) f.get(null);
-				Object value = request.getAttribute(key);
-				if(null != value && value instanceof String) {
-					%>
-		<input type="hidden" name="<%=key%>" value="<%=value%>" readonly="readonly" />
-					<%
-				}
-			}
-		}
+	<h1>IDP SignIn Request Form</h1>
+	<form:form method="POST" name="signinform" >
+		If you are resident, fill your credentials.
+		<i>(It means you have an user account known of this current Identity Provider)</i>
+		<br />
+		userid   : <input type="text" name="username" size="32" /><br />
+		password : <input type="password" name="password" size="32" /><br />
+		<input type="hidden" id="execution" name="execution" value="${flowExecutionKey}"/>
+		<input type="submit" name="_eventId_authenticate" value="Authenticate as resident" /><br />
+	</form:form>
+	<c:if test="${empty requestScope.whr}">
+	    <%
+	    Bus bus = BusFactory.getDefaultBus();
+	    ApplicationContext applicationContext = (ApplicationContext) bus
+	           .getExtension(ApplicationContext.class);
+		List<String> idpPartnerUrls = (List<String>)applicationContext.getBean("idpPartnerUrls"); 
 		%>
-		<input type="hidden" name="<%=HttpFormAuthenticationFilter.PARAM_TAG%>" value="<%=HttpFormAuthenticationFilter.PARAM_TAG%>" readonly="readonly" />
-		userid :
-		<input type="text" name="<%=HttpFormAuthenticationFilter.PARAM_USERNAME%>" size="32" /><br />
-		password :
-		<input type="password" name="<%=HttpFormAuthenticationFilter.PARAM_PASSWORD%>" size="32" /><br />
-		<input type="submit" value="Authenticate" />
-	</form>
+		<form:form method="POST" name="delegateform" >
+			If you are partner, where are you from ?
+			<i>(It means if you have no user account known of this current Identity Provider, you can select below the Identity Provider you belong to)</i>
+			<br />
+			<select name="whr">
+				<% for (String idpPartnerUrl : idpPartnerUrls) { %>
+				<option value="<%=idpPartnerUrl%>"><%=idpPartnerUrl%></option>
+				<% } %>
+			</select>
+<!-- 			Warning : because the submit event of this form is targeted for external redirection, it is mandatory this form not contains the (commented) line below ! -->
+<!-- 			<input type="hidden" id="execution" name="execution" value="${flowExecutionKey}"/> -->
+			<br />
+			<input type="submit" name="_eventId_authenticate-remote" value="Authenticate as partner" />
+		</form:form>
+	</c:if>
 </body>
 </html>
