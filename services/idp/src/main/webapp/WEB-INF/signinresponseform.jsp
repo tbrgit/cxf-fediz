@@ -6,7 +6,7 @@
 <title>IDP SignIn Response Form</title>
 </head>
 <body>
-	<form:form method="POST" name="signinresponseform" action="${fedAction}" htmlEscape="true">
+	<form:form method="POST" id="signinresponseform" name="signinresponseform" action="${fedAction}" htmlEscape="true">
         <input type="hidden" name="wa" value="wsignin1.0" /><br />
         <input type="hidden" name="wresult" value="${fedWResult}" /><br />
         <input type="hidden" name="wctx" value="${fedWCtx}" /><br />

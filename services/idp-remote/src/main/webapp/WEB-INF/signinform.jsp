@@ -7,7 +7,7 @@
 </head>
 <body>
 	<h1>Remote IDP SignIn Request Form</h1>
-	<form:form method="POST" name="signinform" >
+	<form:form method="POST" id="signinform" name="signinform" >
 		Fill your credentials.
 		<br />
 		userid   : <input type="text" name="username" size="32" /><br />

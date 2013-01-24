@@ -5,14 +5,14 @@
 <%@page import="java.util.List"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%-- <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> --%>
 <html>
 <head>
 <title>IDP SignIn Request Form</title>
 </head>
 <body>
 	<h1>IDP SignIn Request Form</h1>
-	<form:form method="POST" name="signinform" >
+	<form:form method="POST" id="signinform" name="signinform" >
 		If you are resident, fill your credentials.
 		<i>(It means you have an user account known of this current Identity Provider)</i>
 		<br />
@@ -21,14 +21,14 @@
 		<input type="hidden" id="execution" name="execution" value="${flowExecutionKey}"/>
 		<input type="submit" name="_eventId_authenticate" value="Authenticate as resident" /><br />
 	</form:form>
-	<c:if test="${empty requestScope.whr}">
+<!--     <c:if test="${empty requestScope.whr}"> -->
 	    <%
 	    Bus bus = BusFactory.getDefaultBus();
 	    ApplicationContext applicationContext = (ApplicationContext) bus
 	           .getExtension(ApplicationContext.class);
 		List<String> idpPartnerUrls = (List<String>)applicationContext.getBean("idpPartnerUrls"); 
 		%>
-		<form:form method="POST" name="delegateform" >
+		<form:form method="POST" id="delegateform" name="delegateform" >
 			If you are partner, where are you from ?
 			<i>(It means if you have no user account known of this current Identity Provider, you can select below the Identity Provider you belong to)</i>
 			<br />
@@ -42,6 +42,6 @@
 			<br />
 			<input type="submit" name="_eventId_authenticate-remote" value="Authenticate as partner" />
 		</form:form>
-	</c:if>
+<!-- 	</c:if> -->
 </body>
 </html>
