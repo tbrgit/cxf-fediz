@@ -29,7 +29,7 @@ import org.springframework.webflow.execution.RequestContext;
 
 public class InitialFlowSetupAction {
 
-    private static final String AUTH_SUPPORT_TYPE = "authSupportType";
+    private static final String AUTH_SUPPORT_TYPE = "idp.authSupportType";
 
     private static final String IDP_NAME = "idpName";
 
@@ -39,7 +39,7 @@ public class InitialFlowSetupAction {
     private String idpName = "IDP";
 
     private String authSupportType;
-    
+
     public String getIdpName() {
         return idpName;
     }
@@ -64,14 +64,18 @@ public class InitialFlowSetupAction {
      * @throws IllegalArgumentException
      */
     public void submit(RequestContext context) {
-        WebUtils.putAttributeInFlowScope(context, AUTH_SUPPORT_TYPE,
-                authSupportType);
+        if (System.getProperty(AUTH_SUPPORT_TYPE) != null) {
+            authSupportType = System.getProperty(AUTH_SUPPORT_TYPE);
+            LOG.info("Bean property [authSupportType] has been overriden from system properties");
+        }
         if (SupportType.valueOf(authSupportType) != null) {
+            WebUtils.putAttributeInFlowScope(context, AUTH_SUPPORT_TYPE,
+                    authSupportType);
             LOG.info(AUTH_SUPPORT_TYPE + "=" + authSupportType
                     + " has been stored in flow scope");
         } else {
             throw new IllegalArgumentException(AUTH_SUPPORT_TYPE + "="
-                    + authSupportType);
+                    + authSupportType + " not supported");
         }
         WebUtils.putAttributeInFlowScope(context, IDP_NAME, idpName);
         LOG.info(IDP_NAME + "=" + idpName + " has been stored in flow scope");
