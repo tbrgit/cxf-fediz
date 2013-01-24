@@ -19,97 +19,61 @@
 
 package org.apache.cxf.fediz.integrationtests;
 
-
-
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.xml.XmlConfiguration;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
 
-
-public class JettyTest extends AbstractTests {
-
-    static String idpHttpsPort;
-    static String rpHttpsPort;
+public final class JettyTest {
     
-    private static Server idpServer;
-    private static Server rpServer;
-    
-    @BeforeClass
-    public static void init() {
-        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-
-        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-
-        System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
-
-        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
-
-        System.setProperty("org.apache.commons.logging.simplelog.log.org.springframework.webflow", "debug");
-        
-        idpHttpsPort = System.getProperty("idp.https.port");
-        Assert.assertNotNull("Property 'idp.https.port' null", idpHttpsPort);
-        rpHttpsPort = System.getProperty("rp.https.port");
-        Assert.assertNotNull("Property 'rp.https.port' null", rpHttpsPort);
-
-        initIdp();
-        Assert.assertTrue("IDP server not running", idpServer.isRunning());
-        initRp();
-        Assert.assertTrue("RP server not running", rpServer.isRunning());
+    private JettyTest() {
+        super();
     }
-    
-    private static void initIdp() {
+
+    public static Server initIdp(String idpHttpsPort) {
+        Server idpServer = null;
         try {
-            Resource testServerConfig = Resource.newSystemResource("jetty/rp-server.xml");
+            Resource testServerConfig = Resource.newSystemResource("jetty/idp-server.xml");
             XmlConfiguration configuration = new XmlConfiguration(testServerConfig.getInputStream());
             idpServer = (Server)configuration.configure();   
             idpServer.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return idpServer;
     }
-    
-    private static void initRp() {
+
+    public static Server initRp(String rpHttpsPort) {
+        Server rpServer = null;
         try {
-            Resource testServerConfig = Resource.newSystemResource("jetty/idp-server.xml");
+            Resource testServerConfig = Resource.newSystemResource("jetty/rp-server.xml");
             XmlConfiguration configuration = new XmlConfiguration(testServerConfig.getInputStream());
             rpServer = (Server)configuration.configure();
             rpServer.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return rpServer;
     }
-    
-    @AfterClass
-    public static void cleanup() {
+
+    public static void cleanup(Server idpServer, Server rpServer) {
         if (idpServer != null && idpServer.isStarted()) {
             try {
-                idpServer.stop();
+//                idpServer.stop();
+                idpServer.setGracefulShutdown(2000);
+                idpServer.setStopAtShutdown(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         if (rpServer != null && rpServer.isStarted()) {
             try {
-                rpServer.stop();
+//                rpServer.stop();
+                rpServer.setGracefulShutdown(2000);
+                rpServer.setStopAtShutdown(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    @Override
-    public String getIdpHttpsPort() {
-        return idpHttpsPort;
-    }
-
-    @Override
-    public String getRpHttpsPort() {
-        return rpHttpsPort;
-    }
-    
-    
 }

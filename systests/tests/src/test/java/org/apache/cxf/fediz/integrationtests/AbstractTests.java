@@ -22,40 +22,52 @@ package org.apache.cxf.fediz.integrationtests;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.List;
 
-import net.htmlparser.jericho.FormField;
-import net.htmlparser.jericho.FormFields;
-import net.htmlparser.jericho.Source;
 import org.apache.cxf.fediz.core.ClaimTypes;
-import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
 
 public abstract class AbstractTests {
 
+    static String idpHttpsPort;
+    static String rpHttpsPort;
+    
     public AbstractTests() {
         super();
     }
 
-    public abstract String getIdpHttpsPort();
+    static String getIdpHttpsPort() {
+        return idpHttpsPort;
+    }
 
-    public abstract String getRpHttpsPort();
+    static String getRpHttpsPort() {
+        return rpHttpsPort;
+    }
+    static void init() {
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
 
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+
+        System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
+
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
+
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.springframework.webflow", "debug");
+        
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.cxf.fediz", "debug");
+        
+       // System.setProperty("idp.https.port", "23617");
+       // System.setProperty("rp.https.port", "24617");
+        
+        idpHttpsPort = System.getProperty("idp.https.port");
+        Assert.assertNotNull("Property 'idp.https.port' null", idpHttpsPort);
+        rpHttpsPort = System.getProperty("rp.https.port");
+        Assert.assertNotNull("Property 'rp.https.port' null", rpHttpsPort);
+
+    }
+    
     @org.junit.Test
     public void testUserAlice() throws Exception {
         String url = "https://localhost:" + getRpHttpsPort() + "/fedizhelloworld/secure/fedservlet";
@@ -134,13 +146,11 @@ public abstract class AbstractTests {
         sendHttpGet(url, user, password, 200, 403);        
     }
 
-//    @org.junit.Ignore
     @org.junit.Test
     public void testUserAliceWrongPassword() throws Exception {
         String url = "https://localhost:" + getRpHttpsPort() + "/fedizhelloworld/secure/fedservlet";
         String user = "alice";
         String password = "alice";
-        //[DONE] Fix IDP return code from 500 to 401
         sendHttpGet(url, user, password, 401, 0);        
     }
 
@@ -156,92 +166,27 @@ public abstract class AbstractTests {
         return sendHttpGet(url, user, password, 200, 200);
     }
 
-    private String sendHttpGet(String url, String user, String password, int returnCodeIDP, int returnCodeRP)
+    abstract String sendHttpGet(String url, String user, String password, int returnCodeIDP, int returnCodeRP)
+        throws Exception;
+    
+    void configureSSL(DefaultHttpClient httpclient)
         throws Exception {
-        DefaultHttpClient httpclient = new DefaultHttpClient();
+        KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
+        FileInputStream instream = new FileInputStream(new File("./target/test-classes/server.jks"));
         try {
-            httpclient.getCredentialsProvider().setCredentials(
-                new AuthScope("localhost", Integer.parseInt(getIdpHttpsPort())),
-                new UsernamePasswordCredentials(user, password));
-
-            KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
-            FileInputStream instream = new FileInputStream(new File("./target/test-classes/server.jks"));
-            try {
-                trustStore.load(instream, "tompass".toCharArray());
-            } finally {
-                try {
-                    instream.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            SSLSocketFactory socketFactory = new SSLSocketFactory(trustStore);
-            Scheme schIdp = new Scheme("https", Integer.parseInt(getIdpHttpsPort()), socketFactory);
-            httpclient.getConnectionManager().getSchemeRegistry().register(schIdp);
-            Scheme schRp = new Scheme("https", Integer.parseInt(getRpHttpsPort()), socketFactory);
-            httpclient.getConnectionManager().getSchemeRegistry().register(schRp);
-
-            HttpGet httpget = new HttpGet(url);
-
-            HttpResponse response = httpclient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-
-            System.out.println(response.getStatusLine());
-            if (entity != null) {
-                System.out.println("Response content length: " + entity.getContentLength());
-            }
-            Assert.assertTrue("IDP HTTP Response code: " + response.getStatusLine().getStatusCode()
-                              + " [Expected: " + returnCodeIDP + "]",
-                              returnCodeIDP == response.getStatusLine().getStatusCode());
-
-            if (response.getStatusLine().getStatusCode() != 200) {
-                return null;
-            }
-
-            //            Redirect to a POST is not supported without user interaction
-            //            http://www.ietf.org/rfc/rfc2616.txt
-            //            If the 301 status code is received in response to a request other
-            //            than GET or HEAD, the user agent MUST NOT automatically redirect the
-            //            request unless it can be confirmed by the user, since this might
-            //            change the conditions under which the request was issued.
-
-            httpclient.setRedirectStrategy(new LaxRedirectStrategy());
-            HttpPost httppost = new HttpPost(url);
-
-            Source source = new Source(EntityUtils.toString(entity));
-            List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-            FormFields formFields = source.getFormFields();
-            Assert.assertNotNull("Form field 'wa' not found", formFields.get("wa"));
-            Assert.assertNotNull("Form field 'wresult' not found", formFields.get("wresult"));
-            for (FormField formField : formFields) {
-                if (formField.getUserValueCount() != 0) {
-                    nvps.add(new BasicNameValuePair(formField.getName(),
-                            formField.getValues().get(0)));
-                }
-            }
-            httppost.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
-
-            response = httpclient.execute(httppost);
-
-            entity = response.getEntity();
-            System.out.println(response.getStatusLine());
-            Assert.assertTrue("RP HTTP Response code: " + response.getStatusLine().getStatusCode()
-                              + " [Expected: " + returnCodeRP + "]",
-                              returnCodeRP == response.getStatusLine().getStatusCode());
-
-            if (entity != null) {
-                System.out.println("Response content length: " + entity.getContentLength());
-            }
-
-            return EntityUtils.toString(entity);
+            trustStore.load(instream, "tompass".toCharArray());
         } finally {
-            // When HttpClient instance is no longer needed,
-            // shut down the connection manager to ensure
-            // immediate deallocation of all system resources
-            httpclient.getConnectionManager().shutdown();
+            try {
+                instream.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
+        SSLSocketFactory socketFactory = new SSLSocketFactory(trustStore);
+        Scheme schIdp = new Scheme("https", Integer.parseInt(getIdpHttpsPort()), socketFactory);
+        httpclient.getConnectionManager().getSchemeRegistry().register(schIdp);
+        Scheme schRp = new Scheme("https", Integer.parseInt(getRpHttpsPort()), socketFactory);
+        httpclient.getConnectionManager().getSchemeRegistry().register(schRp);
     }
-
 }

@@ -67,7 +67,7 @@
 	
 	<bean id="initialFlowSetupAction" class="org.apache.cxf.fediz.service.idp.beans.InitialFlowSetupAction" >
 <!--         <property name="authSupportType" value="FORM" /> -->
-        <property name="authSupportType" value="BASIC" />
+<!--         <property name="authSupportType" value="BASIC" /> -->
 		<property name="idpName" value="LocalIDP" />
 	</bean>
 	
