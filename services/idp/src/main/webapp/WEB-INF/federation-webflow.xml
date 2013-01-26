@@ -12,44 +12,56 @@
     <!-- (5) 'wsignoutcleanup1.0' (sub-flow ?) > to be completed -->
     <!-- (6) test with webapp & webservice projects > done -->
     <!-- (7) externalize 'BASIC'/'FORM' choice out of web flow definition > done -->
-    <!-- (8) externalize choice between 2 possible abnormal exit points out of web flow definition -->
-    <!-- (9) authentication delegation to remote idp for 'full' federation > done --> 
+    <!-- (8) externalize choice between 2 possible abnormal exit points out of web flow definition > N/A -->
+    <!-- (9) authentication delegation to remote idp for 'full' federation > work in progress --> 
     <!-- (10) merge all protocol checks in one decision state > done --> 
+    <!-- (11) systests ('BASIC'/'FORM') X (Tomcat7/Jetty8) > done --> 
     <!-- more ? -->
 
 
+<!-- warning temp implementation : local wtrealm and wreply currently hard-coded -->
+    <var name="thisWtrealm" class="java.lang.String" />
+    <var name="thisWreply" class="java.lang.String" />
 
     <!-- configure flow -->
     <on-start>
+<!-- warning temp implementation : local wtrealm and wreply currently hard-coded -->
+        <set name="thisWtrealm" value="'urn:fediz:idp'" />
+        <set name="thisWreply" value="'https://localhost:9443/fediz-idp/federation'" />
+
         <evaluate expression="initialFlowSetupAction.submit(flowRequestContext)" />
     </on-start>
-
+    
     <!-- protocol check -->
     <decision-state id="WSFederationRequestCheck">
         <if test="requestParameters.wa == null" then="viewBadRequest" />
         <if test="requestParameters.wa != 'wsignin1.0' and requestParameters.wa != 'wsignout1.0' and requestParameters.wa != 'wsignoutcleanup1.0'" then="viewBadRequest" />
         <if test="requestParameters.wa == 'wsignout1.0' or requestParameters.wa == 'wsignoutcleanup1.0'" then="invalidateSessionAction" />
         <if test="requestParameters.wtrealm == null or requestParameters.wtrealm.length() == 0" then="viewBadRequest" />
+
+<!--         <if test="requestParameters.wreply == null or requestParameters.wreply.length() == 0" then="viewBadRequest" /> -->
+        <if test="requestParameters.wresult != null and requestParameters.wresult.length() != 0" then="idpRSTRAction" />
+
         <if test="externalContext.sessionMap['IDP_TOKEN'] == null" then="whrCheck" />
         <if test="externalContext.sessionMap['IDP_TOKEN'].isExpired() == true" then="whrCheck" />
         <if test="requestParameters.wfresh != null and requestParameters.wfresh.equals('0')" then="whrCheck" else="rpTokenAction" />
-        <on-exit>
-            <set name="flowScope.wtrealm" value="requestParameters.wtrealm" />
-            <set name="flowScope.wctx" value="requestParameters.wctx" />
-            <set name="flowScope.wreply" value="requestParameters.wreply" />
-        </on-exit>
     </decision-state>
     
-    <!-- browser requestor provided 'whr' -->
+    <!-- 'whr' provided ? local authentication : remote authentication -->
     <decision-state id="whrCheck">
         <on-entry>
-            <set name="externalContext.sessionMap['IDP_TOKEN']" value="null" />
+            <set name="externalContext.sessionMap['wtrealm']" value="requestParameters.wtrealm" />
+            <set name="externalContext.sessionMap['wreply']" value="requestParameters.wreply" />
+            <set name="externalContext.sessionMap['wctx']" value="requestParameters.wctx" />
         </on-entry>
         <if test="requestParameters.whr != null" then="viewRemote" else="authenticationRequired" />
     </decision-state>
     
     <!-- select authentication support type -->
     <decision-state id="authenticationRequired">
+        <on-entry>
+            <set name="externalContext.sessionMap['IDP_TOKEN']" value="null" />
+        </on-entry>
         <if test="flowScope['idp.authSupportType'] == 'FORM'" then="formAuthenticationView" />
         <if test="flowScope['idp.authSupportType'] == 'BASIC'" then="basicAuthenticationCheck" else="viewBadRequest" />
     </decision-state>
@@ -74,13 +86,23 @@
     <!-- redirect to remote idp -->
     <end-state id="viewRemote" view="externalRedirect:${flowScope.remoteIdpUrl}">
         <on-entry>
+<!--             <set name="flowScope.remoteIdpUrl" -->
+<!--                  value="requestParameters.whr -->
+<!--                     +'?wa='+requestParameters.wa -->
+<!--                     +'&amp;wtrealm='+requestParameters.wtrealm -->
+<!--                     +(requestParameters.wreply != null ? '&amp;wreply='+requestParameters.wreply : '') -->
+<!--                     +(requestParameters.wctx != null ? '&amp;wctx='+requestParameters.wctx : '')"> -->
+<!--             </set> -->
+
+<!-- warning temp implementation : local wtrealm and wreply currently hard-coded -->
             <set name="flowScope.remoteIdpUrl"
                  value="requestParameters.whr
                     +'?wa='+requestParameters.wa
-                    +'&amp;wtrealm='+requestParameters.wtrealm
-                    +(requestParameters.wreply != null ? '&amp;wreply='+requestParameters.wreply : '')
+                    +'&amp;wtrealm='+thisWtrealm
+                    +'&amp;wreply='+thisWreply
                     +(requestParameters.wctx != null ? '&amp;wctx='+requestParameters.wctx : '')">
             </set>
+
         </on-entry>
     </end-state>
 
@@ -109,7 +131,7 @@
         <transition on-exception="java.lang.Throwable" to="scInternalServerError" />
     </action-state>
 
-    <!-- produce IDP security token (as SecurityToken type) and store it in session -->
+    <!-- Receiving username/password as credentials, produce IDP security token (as SecurityToken type) and store it in session -->
     <!-- catch SoapFault in case of wrong credentials to redirect the flow -->
     <action-state id="idpUsernamePasswordTokenAction">
         <evaluate expression="stsClientForIdpAction.submit(flowScope.usernamePasswordCredentials)"
@@ -123,6 +145,20 @@
         <transition on-exception="java.lang.Throwable" to="scInternalServerError" />
     </action-state>
 
+    <!-- Receiving a RSTR, produce IDP security token (as SecurityToken type) and store it in session -->
+    <!-- catch SoapFault in case of wrong credentials to redirect the flow -->
+    <action-state id="idpRSTRAction">
+        <evaluate expression="stsClientForIdpRSTRAction.submitRSTR(requestParameters.wresult, externalContext.sessionMap['wtrealm'])"
+                    result="flowScope.idpToken" 
+                    result-type="org.apache.cxf.ws.security.tokenstore.SecurityToken" />
+        <transition on="success" to="rpTokenAction">
+            <set name="externalContext.sessionMap['IDP_TOKEN']" value="flowScope.idpToken" />
+<!--             <set name="externalContext.sessionMap['IDP_PRINCIPAL']" value="flowScope.usernamePasswordCredentials.username" /> -->
+        </transition>
+        <transition on-exception="org.apache.cxf.binding.soap.SoapFault" to="viewBadRequest" />
+        <transition on-exception="java.lang.Throwable" to="scInternalServerError" />
+    </action-state>
+
     <!-- when authentication failed, depending on the authentication support type set -->
     <decision-state id="authenticationFailedSwitch">
         <if test="flowScope['idp.authSupportType'] == 'FORM'" then="formAuthenticationView" />
@@ -131,7 +167,10 @@
     
     <!-- produce RP security token (as String type) -->
     <action-state id="rpTokenAction">
-        <evaluate expression="stsClientForRpAction.submit(externalContext.sessionMap['IDP_TOKEN'], flowScope.wtrealm)" 
+<!--         <evaluate expression="stsClientForRpAction.submit(externalContext.sessionMap['IDP_TOKEN'], flowScope.wtrealm)"  -->
+<!--                     result="flowScope.rpToken"  -->
+<!--                     result-type="java.lang.String" /> -->
+        <evaluate expression="stsClientForRpAction.submit(externalContext.sessionMap['IDP_TOKEN'], externalContext.sessionMap['wtrealm'])" 
                     result="flowScope.rpToken" 
                     result-type="java.lang.String" />
         <transition to="formResponseView" />
@@ -142,9 +181,11 @@
     <!-- browser redirection (self-submitted form 'signinresponseform.jsp') -->
     <end-state id="formResponseView" view="signinresponseform"> 
         <on-entry>
-            <evaluate expression="flowScope.getString('wreply',flowScope.getString('wtrealm'))" result="requestScope.fedAction" /> <!-- note: use 'wtrealm' instead of 'wreply' if not set -->
-            <evaluate expression="flowScope.getString('wctx')" result="requestScope.fedWCtx" />
-            <evaluate expression="flowScope.getString('rpToken')" result="requestScope.fedWResult" />
+<!--             <evaluate expression="flowScope.getString('wreply',flowScope.getString('wtrealm'))" result="requestScope.fedAction" /> -->
+            <evaluate expression="externalContext.sessionMap['wreply']" result="requestScope.fedAction" />
+            <evaluate expression="externalContext.sessionMap['wtrealm']" result="requestScope.fedWTrealm" />
+            <evaluate expression="externalContext.sessionMap['wctx']" result="requestScope.fedWCtx" />
+            <evaluate expression="flowScope.rpToken" result="requestScope.fedWResult" />
         </on-entry>
     </end-state>
     

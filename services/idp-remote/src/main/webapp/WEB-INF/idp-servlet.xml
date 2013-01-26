@@ -46,13 +46,20 @@
 		<property name="suffix" value=".jsp"/>
 	</bean>
 
-	<bean id="stsClientForIdpAction" class="org.apache.cxf.fediz.service.idp.beans.STSClientAction">
-		<property name="wsdlLocation" value="https://localhost:12443/fediz-idp-sts-remote/STSService?wsdl"/>
-		<property name="wsdlEndpoint" value="TransportUT_Port"/>
-		<property name="appliesTo" value="urn:fediz:idp-remote"/>
-		<property name="tokenType" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
-		<property name="claimsRequired" value="true"/>
-	</bean>
+    <bean id="stsClientForIdpAction" class="org.apache.cxf.fediz.service.idp.beans.STSClientAction">
+        <property name="wsdlLocation" value="https://localhost:12443/fediz-idp-sts-remote/STSService?wsdl"/>
+        <property name="wsdlEndpoint" value="TransportUT_Port"/>
+        <property name="appliesTo" value="urn:fediz:idp-remote"/>
+        <property name="tokenType" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
+        <property name="claimsRequired" value="true"/>
+    </bean>
+
+    <bean id="stsClientForIdpRSTRAction" class="org.apache.cxf.fediz.service.idp.beans.STSClientAction">
+        <property name="wsdlLocation" value="https://localhost:12443/fediz-idp-sts/STSService?wsdl"/>
+        <property name="wsdlEndpoint" value="TransportUT_Port"/>
+        <property name="tokenType" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
+        <property name="claimsRequired" value="true"/>
+    </bean>
 
 	<bean id="stsClientForRpAction" class="org.apache.cxf.fediz.service.idp.beans.STSClientAction">
 		<property name="wsdlLocation" value="https://localhost:12443/fediz-idp-sts-remote/STSServiceTransport?wsdl"/>
@@ -68,7 +75,7 @@
 	<bean id="initialFlowSetupAction" class="org.apache.cxf.fediz.service.idp.beans.InitialFlowSetupAction" >
 <!--         <property name="authSupportType" value="FORM" /> -->
         <property name="authSupportType" value="BASIC" />
-		<property name="idpName" value="LocalIDP" />
+		<property name="idpName" value="RemoteIDP" />
 	</bean>
 	
 </beans>

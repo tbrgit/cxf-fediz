@@ -10,12 +10,13 @@
         <input type="hidden" name="wa" value="wsignin1.0" /><br />
         <input type="hidden" name="wresult" value="${fedWResult}" /><br />
         <input type="hidden" name="wctx" value="${fedWCtx}" /><br />
- 		<input type="hidden" id="execution" name="execution" value="${flowExecutionKey}" /><br />
- 		<noscript>
+        <input type="hidden" name="wtrealm" value="${fedWTrealm}" /><br />
+<%--        <input type="hidden" id="execution" name="execution" value="${flowExecutionKey}" /><br /> --%>
+<!--  		<noscript> -->
 		<p>Script is disabled. Click Submit to continue.</p>
 		<input type="submit" name="_eventId_submit" value="Submit" /><br />
-		</noscript>
+<!-- 		</noscript> -->
 	</form:form>
-	<script language="javascript">window.setTimeout('document.forms[0].submit()',0);</script>
+<!-- 	<script language="javascript">window.setTimeout('document.forms[0].submit()',0);</script> -->
 </body>
 </html>
