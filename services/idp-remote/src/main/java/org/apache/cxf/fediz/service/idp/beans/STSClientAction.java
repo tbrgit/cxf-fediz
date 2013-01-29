@@ -236,7 +236,7 @@ public class STSClientAction {
 
         SecurityToken idpToken = sts.requestSecurityToken(wtrealm);
 
-        LOG.info("Token [IDP_TOKEN] produced succesfully.");
+        LOG.info("Token [RP/IDP_TOKEN] produced succesfully.");
         return idpToken;
     }
 
