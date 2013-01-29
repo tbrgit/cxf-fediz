@@ -26,8 +26,8 @@
     <!-- configure flow -->
     <on-start>
 <!-- warning temp implementation : local wtrealm and wreply currently hard-coded -->
-        <set name="thisWtrealm" value="'urn:fediz:idp'" />
-        <set name="thisWreply" value="'https://localhost:9443/fediz-idp/federation'" />
+        <set name="thisWtrealm" value="'urn:fediz:idp-remote'" />
+        <set name="thisWreply" value="'https://localhost:12443/fediz-idp-remote/federation'" />
 
         <evaluate expression="initialFlowSetupAction.submit(flowRequestContext)" />
     </on-start>
@@ -39,7 +39,6 @@
         <if test="requestParameters.wa == 'wsignout1.0' or requestParameters.wa == 'wsignoutcleanup1.0'" then="invalidateSessionAction" />
         <if test="requestParameters.wtrealm == null or requestParameters.wtrealm.length() == 0" then="viewBadRequest" />
 
-<!--         <if test="requestParameters.wreply == null or requestParameters.wreply.length() == 0" then="viewBadRequest" /> -->
         <if test="requestParameters.wresult != null and requestParameters.wresult.length() != 0" then="idpRSTRAction" />
 
         <if test="externalContext.sessionMap['IDP_TOKEN'] == null" then="whrCheck" />
@@ -148,7 +147,7 @@
     <!-- Receiving a RSTR, produce IDP security token (as SecurityToken type) and store it in session -->
     <!-- catch SoapFault in case of wrong credentials to redirect the flow -->
     <action-state id="idpRSTRAction">
-        <evaluate expression="stsClientForIdpRSTRAction.submitRSTR(requestParameters.wresult, externalContext.sessionMap['wtrealm'])"
+        <evaluate expression="stsClientForIdpRSTRAction.submitRSTR(requestParameters.wresult, thisWtrealm)"
                     result="flowScope.idpToken" 
                     result-type="org.apache.cxf.ws.security.tokenstore.SecurityToken" />
         <transition on="success" to="rpTokenAction">
