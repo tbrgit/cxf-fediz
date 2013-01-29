@@ -9,26 +9,11 @@
 
 
 	<util:map id="realm2ClaimsMap">
-		<entry key="http://localhost:8080/fedizhelloworldother/"
-			value-ref="claimsWsfedhelloworld" />
-		<entry key="http://localhost:8080/fedizhelloworld/"
-			value-ref="claimsWsfedhelloworld2" />
-		<entry key="https://localhost:8443/fedizhelloworld/"
-			value-ref="claimsWsfedhelloworld2" />
-		<entry key="urn:org:apache:cxf:fediz:fedizhelloworld"
-			value-ref="claimsWsfedhelloworld2" />
-		<entry key="urn:org:apache:cxf:fediz:fedizhelloworld2"
-			value-ref="claimsWsfedhelloworld" />  			
+		<entry key="urn:fediz:idp"
+			value-ref="claimsrpidp" />
 	</util:map>
 
-
-
-	<util:list id="claimsWsfedhelloworld">
-		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</value>
-		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</value>
-	</util:list>
-
-	<util:list id="claimsWsfedhelloworld2">
+	<util:list id="claimsrpidp">
 		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</value>
 		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</value>
 		<value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</value>
