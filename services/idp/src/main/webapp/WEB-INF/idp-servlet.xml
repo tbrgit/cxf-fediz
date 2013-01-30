@@ -55,7 +55,7 @@
     </bean>
 
 <!--     Still in work -->
-<!--     How to tranfert "remote" claims ?
+<!--     How to tranfert "remote" claims ? -->
     <bean id="stsClientForIdpRSTRAction" class="org.apache.cxf.fediz.service.idp.beans.STSClientAction">
         <property name="wsdlLocation" value="https://localhost:9443/fediz-idp-sts/STSService?wsdl"/>
         <property name="wsdlEndpoint" value="Transport_Port"/>
