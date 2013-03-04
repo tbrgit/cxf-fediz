@@ -40,6 +40,10 @@ public class InitialFlowSetupAction {
 
     private String authSupportType;
 
+    private String thisWtrealm;
+
+    private String thisWreply;
+    
     public String getIdpName() {
         return idpName;
     }
@@ -54,6 +58,22 @@ public class InitialFlowSetupAction {
 
     public void setAuthSupportType(String authSupportType) {
         this.authSupportType = authSupportType;
+    }
+
+    public String getThisWtrealm() {
+        return thisWtrealm;
+    }
+
+    public void setThisWtrealm(String thisWtrealm) {
+        this.thisWtrealm = thisWtrealm;
+    }
+
+    public String getThisWreply() {
+        return thisWreply;
+    }
+
+    public void setThisWreply(String thisWreply) {
+        this.thisWreply = thisWreply;
     }
 
     private static enum SupportType {
@@ -77,7 +97,17 @@ public class InitialFlowSetupAction {
             throw new IllegalArgumentException(AUTH_SUPPORT_TYPE + "="
                     + authSupportType + " not supported");
         }
-        WebUtils.putAttributeInFlowScope(context, IDP_NAME, idpName);
-        LOG.info(IDP_NAME + "=" + idpName + " has been stored in flow scope");
+        putAttributeInFlowScope(context, IDP_NAME, idpName);
+        putAttributeInFlowScope(context, "thisWtrealm", thisWtrealm);
+        putAttributeInFlowScope(context, "thisWreply", thisWreply);
+    }
+
+    private void putAttributeInFlowScope(RequestContext context, String key, String value) {
+        if (value != null) {
+            WebUtils.putAttributeInFlowScope(context, key, value);
+            LOG.info(key + "=" + value + " has been stored in flow scope");
+        } else {
+            throw new IllegalArgumentException("Bean property [" + key + "] should be configured");
+        }
     }
 }

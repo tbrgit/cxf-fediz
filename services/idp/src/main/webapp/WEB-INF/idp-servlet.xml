@@ -77,7 +77,9 @@
 	<bean id="initialFlowSetupAction" class="org.apache.cxf.fediz.service.idp.beans.InitialFlowSetupAction" >
 <!--         <property name="authSupportType" value="FORM" /> -->
         <property name="authSupportType" value="BASIC" />
-		<property name="idpName" value="LocalIDP" />
+        <property name="idpName" value="LocalIDP" />
+        <property name="thisWtrealm" value="urn:fediz:idp" />
+        <property name="thisWreply" value="https://localhost:9443/fediz-idp/federation" />
 	</bean>
 	
 </beans>
