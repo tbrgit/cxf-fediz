@@ -15,21 +15,9 @@
         <if test="requestParameters.wa == 'wsignout1.0' or requestParameters.wa == 'wsignoutcleanup1.0'" then="invalidateSessionAction" />
         <if test="requestParameters.wtrealm == null or requestParameters.wtrealm.length() == 0" then="viewBadRequest" />
 
-        <if test="requestParameters.wresult != null and requestParameters.wresult.length() != 0" then="idpRSTRAction" />
-
-        <if test="externalContext.sessionMap['IDP_TOKEN'] == null" then="whrCheck" />
-        <if test="externalContext.sessionMap['IDP_TOKEN'].isExpired() == true" then="whrCheck" />
-        <if test="requestParameters.wfresh != null and requestParameters.wfresh.equals('0')" then="whrCheck" else="rpTokenAction" />
-    </decision-state>
-    
-    <!-- 'whr' provided ? local authentication : remote authentication -->
-    <decision-state id="whrCheck">
-        <on-entry>
-            <set name="externalContext.sessionMap['wtrealm']" value="requestParameters.wtrealm" />
-            <set name="externalContext.sessionMap['wreply']" value="requestParameters.wreply" />
-            <set name="externalContext.sessionMap['wctx']" value="requestParameters.wctx" />
-        </on-entry>
-        <if test="requestParameters.whr != null" then="viewRemote" else="authenticationRequired" />
+        <if test="externalContext.sessionMap['IDP_TOKEN'] == null" then="authenticationRequired" />
+        <if test="externalContext.sessionMap['IDP_TOKEN'].isExpired() == true" then="authenticationRequired" />
+        <if test="requestParameters.wfresh != null and requestParameters.wfresh.equals('0')" then="authenticationRequired" else="rpTokenAction" />
     </decision-state>
     
     <!-- select authentication support type -->
@@ -55,22 +43,7 @@
         <transition on="authenticate" bind="true" validate="true" to="idpUsernamePasswordTokenAction">
             <set name="flowScope.usernamePasswordCredentials" value="usernamePasswordCredentials" />
         </transition>
-        <transition on="authenticate-remote" bind="false" validate="false" to="viewRemote" />
     </view-state>
-
-    <!-- redirect to remote idp -->
-    <end-state id="viewRemote" view="externalRedirect:${flowScope.remoteIdpUrl}">
-        <on-entry>
-            <set name="flowScope.remoteIdpUrl"
-                 value="requestParameters.whr
-                    +'?wa='+requestParameters.wa
-                    +'&amp;wtrealm='+flowScope.thisWtrealm
-                    +'&amp;wreply='+flowScope.thisWreply
-                    +(requestParameters.wctx != null ? '&amp;wctx='+requestParameters.wctx : '')">
-            </set>
-
-        </on-entry>
-    </end-state>
 
     <!-- check basic authentication state -->
     <decision-state id="basicAuthenticationCheck">
@@ -108,20 +81,6 @@
             <set name="externalContext.sessionMap['IDP_PRINCIPAL']" value="flowScope.usernamePasswordCredentials.username" />
         </transition>
         <transition on-exception="org.apache.cxf.binding.soap.SoapFault" to="authenticationFailedSwitch" />
-        <transition on-exception="java.lang.Throwable" to="scInternalServerError" />
-    </action-state>
-
-    <!-- Receiving a RSTR, produce IDP security token (as SecurityToken type) and store it in session -->
-    <!-- catch SoapFault in case of wrong credentials to redirect the flow -->
-    <action-state id="idpRSTRAction">
-        <evaluate expression="stsClientForIdpRSTRAction.submitRSTR(requestParameters.wresult, flowScope.thisWtrealm)"
-                    result="flowScope.idpToken" 
-                    result-type="org.apache.cxf.ws.security.tokenstore.SecurityToken" />
-        <transition on="success" to="rpTokenAction">
-            <set name="externalContext.sessionMap['IDP_TOKEN']" value="flowScope.idpToken" />
-<!--             <set name="externalContext.sessionMap['IDP_PRINCIPAL']" value="flowScope.usernamePasswordCredentials.username" /> -->
-        </transition>
-        <transition on-exception="org.apache.cxf.binding.soap.SoapFault" to="viewBadRequest" />
         <transition on-exception="java.lang.Throwable" to="scInternalServerError" />
     </action-state>
 

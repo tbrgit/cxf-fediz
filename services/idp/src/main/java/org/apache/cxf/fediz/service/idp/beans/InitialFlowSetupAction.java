@@ -40,10 +40,6 @@ public class InitialFlowSetupAction {
 
     private String authSupportType;
 
-    private String thisWtrealm;
-
-    private String thisWreply;
-    
     public String getIdpName() {
         return idpName;
     }
@@ -58,22 +54,6 @@ public class InitialFlowSetupAction {
 
     public void setAuthSupportType(String authSupportType) {
         this.authSupportType = authSupportType;
-    }
-
-    public String getThisWtrealm() {
-        return thisWtrealm;
-    }
-
-    public void setThisWtrealm(String thisWtrealm) {
-        this.thisWtrealm = thisWtrealm;
-    }
-
-    public String getThisWreply() {
-        return thisWreply;
-    }
-
-    public void setThisWreply(String thisWreply) {
-        this.thisWreply = thisWreply;
     }
 
     private static enum SupportType {
@@ -98,8 +78,6 @@ public class InitialFlowSetupAction {
                     + authSupportType + " not supported");
         }
         putAttributeInFlowScope(context, IDP_NAME, idpName);
-        putAttributeInFlowScope(context, "thisWtrealm", thisWtrealm);
-        putAttributeInFlowScope(context, "thisWreply", thisWreply);
     }
 
     private void putAttributeInFlowScope(RequestContext context, String key, String value) {
