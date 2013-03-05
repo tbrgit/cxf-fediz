@@ -18,8 +18,6 @@
  */
 package org.apache.cxf.fediz.service.idp.beans;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -27,16 +25,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.fediz.service.idp.IdpSTSClient;
 import org.apache.cxf.fediz.service.idp.UsernamePasswordCredentials;
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -195,66 +190,6 @@ public class STSClientAction {
 
         LOG.info("Token [RP_TOKEN] produced succesfully.");
         return StringEscapeUtils.escapeXml(rpToken);
-    }
-
-    /**
-     * @param rstr
-     * RSTR
-     * @param wtrealm
-     *            the remote idp security domain
-     * @return a IDP {@link SecurityToken}
-     * @throws Exception
-     */
-    public SecurityToken submitRSTR(String rstr, String wtrealm)
-        throws Exception {
-
-        Bus bus = BusFactory.getDefaultBus();
-
-        IdpSTSClient sts = new IdpSTSClient(bus);
-        sts.setAddressingNamespace(HTTP_WWW_W3_ORG_2005_08_ADDRESSING);
-        paramTokenType(sts);
-        sts.setKeyType(HTTP_DOCS_OASIS_OPEN_ORG_WS_SX_WS_TRUST_200512_BEARER);
-
-        sts.setWsdlLocation(this.wsdlLocation);
-        sts.setServiceQName(new QName(
-                HTTP_DOCS_OASIS_OPEN_ORG_WS_SX_WS_TRUST_200512,
-                SECURITY_TOKEN_SERVICE));
-        sts.setEndpointQName(new QName(
-                HTTP_DOCS_OASIS_OPEN_ORG_WS_SX_WS_TRUST_200512,
-                this.wsdlEndpoint));
-
-        if (this.claimsRequired) {
-            addClaims(wtrealm, bus, sts);
-        }
-
-        Element element = getInnerSecurityToken(rstr);
-        if (element != null) {
-            sts.setOnBehalfOf(element);
-        } else {
-            throw new IllegalArgumentException("Unable to extract Security Token from Response Security Token Request");
-        }
-
-        SecurityToken idpToken = sts.requestSecurityToken(wtrealm);
-
-        LOG.info("Token [RP/IDP_TOKEN] produced succesfully.");
-        return idpToken;
-    }
-
-    //TODO refactor code below
-    private Element getInnerSecurityToken(String rstr)
-        throws SAXException, IOException, ParserConfigurationException {
-        Document doc = DOMUtils.readXml(new StringReader(rstr));
-        Element element = doc.getDocumentElement();
-        element = DOMUtils.getFirstElement(element);
-        element = DOMUtils.getFirstElement(element);
-        while (element != null) {
-            if (element.getLocalName().equals("RequestedSecurityToken")) {
-                element = DOMUtils.getFirstElement(element);
-                break;
-            }
-            element = DOMUtils.getNextElement(element);
-        }
-        return element;
     }
 
     private void addClaims(String wtrealm, Bus bus, IdpSTSClient sts)
