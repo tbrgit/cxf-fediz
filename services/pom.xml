@@ -33,7 +33,5 @@
    <modules>
       <module>idp</module>
       <module>sts</module>
-      <module>idp-remote</module>
-      <module>sts-remote</module>
    </modules>
 </project>
