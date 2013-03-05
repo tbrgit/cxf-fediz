@@ -69,8 +69,6 @@
 <!--         <property name="authSupportType" value="FORM" /> -->
 <!--         <property name="authSupportType" value="BASIC" /> -->
 		<property name="idpName" value="LocalIDP" />
-        <property name="thisWtrealm" value="urn:fediz:idp" />
-        <property name="thisWreply" value="https://localhost:${idp.https.port}/fediz-idp/federation" />
 	</bean>
 	
 </beans>
