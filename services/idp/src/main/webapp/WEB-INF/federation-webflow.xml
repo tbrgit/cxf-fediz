@@ -10,6 +10,11 @@
     
     <!-- protocol check -->
     <decision-state id="WSFederationRequestCheck">
+        <on-entry>
+            <set name="externalContext.sessionMap['wtrealm']" value="requestParameters.wtrealm" />
+            <set name="externalContext.sessionMap['wreply']" value="requestParameters.wreply" />
+            <set name="externalContext.sessionMap['wctx']" value="requestParameters.wctx" />
+        </on-entry>
         <if test="requestParameters.wa == null" then="viewBadRequest" />
         <if test="requestParameters.wa != 'wsignin1.0' and requestParameters.wa != 'wsignout1.0' and requestParameters.wa != 'wsignoutcleanup1.0'" then="viewBadRequest" />
         <if test="requestParameters.wa == 'wsignout1.0' or requestParameters.wa == 'wsignoutcleanup1.0'" then="invalidateSessionAction" />
