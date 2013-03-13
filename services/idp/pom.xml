@@ -34,6 +34,7 @@
     </dependencyManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <idp.https.port>9443</idp.https.port>
     </properties>
     <dependencies>
         <dependency>
