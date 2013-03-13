@@ -26,7 +26,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>fediz-idp</artifactId>
-    <name>Apache Fediz IDP</name>
+    <name>Apache Fediz IDP (Spring Web Flow)</name>
     <packaging>war</packaging>
     <dependencyManagement>
         <dependencies>
@@ -44,19 +44,31 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.webflow</groupId>
+            <artifactId>spring-webflow</artifactId>
+            <version>2.3.1.RELEASE</version>
+        </dependency>
+        <dependency>
+          <groupId>ognl</groupId>
+          <artifactId>ognl</artifactId>
+          <version>3.0.5</version>
+          <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>org.slf4j</groupId> -->
+<!--             <artifactId>slf4j-jdk14</artifactId> -->
+<!--             <version>${slf4j.version}</version> -->
+<!--         </dependency> -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
