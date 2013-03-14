@@ -50,7 +50,11 @@ public class TomcatTest extends AbstractTests {
 
         System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
         
-       // System.setProperty("idp.https.port", "23617");
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.springframework.webflow", "debug");
+        
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.cxf.fediz", "debug");
+
+        // System.setProperty("idp.https.port", "23617");
        // System.setProperty("rp.https.port", "24617");
         
         idpHttpsPort = System.getProperty("idp.https.port");
