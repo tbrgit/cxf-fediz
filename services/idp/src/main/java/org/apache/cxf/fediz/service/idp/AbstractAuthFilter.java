@@ -33,7 +33,9 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public abstract class AbstractAuthFilter implements Filter {
 
     public static final String PRE_STATE = "pre-state";

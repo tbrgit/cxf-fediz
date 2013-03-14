@@ -29,6 +29,9 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public class BasicAuthenticationFilter extends AbstractAuthFilter {
 
     public static final String AUTH_HEADER_NAME = "WWW-Authenticate";

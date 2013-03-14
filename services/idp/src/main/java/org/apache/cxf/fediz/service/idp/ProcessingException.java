@@ -20,6 +20,9 @@ package org.apache.cxf.fediz.service.idp;
 
 import javax.servlet.ServletException;
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public class ProcessingException extends ServletException {
 
     private static final long serialVersionUID = -7826089555569489534L;

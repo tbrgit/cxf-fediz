@@ -47,6 +47,9 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public class LogoutFilter extends AbstractAuthFilter {
 
     public static final String PARAM_LOGOUT_URI = "logout.uri";

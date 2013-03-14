@@ -44,6 +44,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public class STSClientFilter extends AbstractAuthFilter {
 
     private static final String PARAM_TOKENTYPE = "tokentype";

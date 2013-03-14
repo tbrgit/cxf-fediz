@@ -25,6 +25,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public class AuthContext implements Map<String, Object> {
 
     public static final String CURRENT_STATE = "current-state";

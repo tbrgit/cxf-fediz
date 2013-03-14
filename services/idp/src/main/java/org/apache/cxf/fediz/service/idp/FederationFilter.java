@@ -30,6 +30,9 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public class FederationFilter extends AbstractAuthFilter {
 
     public static final String PARAM_ACTION = "wa";

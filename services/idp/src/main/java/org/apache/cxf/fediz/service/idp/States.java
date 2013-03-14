@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.fediz.service.idp;
 
+/** Since we enhance cxf-fediz IDP basing on Spring Web Flow framework 
+ * this class is obsolete in this new context. */ 
+@Deprecated
 public enum States {
     NOT_AUTHENTICATED,
     AUTHENTICATION_REQUIRED,
