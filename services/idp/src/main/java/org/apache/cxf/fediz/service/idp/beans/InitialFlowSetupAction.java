@@ -58,7 +58,8 @@ public class InitialFlowSetupAction {
     }
 
     private static enum SupportType {
-        FORM, BASIC;
+//        FORM, BASIC;
+        BASIC;
     }
 
     /**
