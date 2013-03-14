@@ -167,7 +167,7 @@
                         <id>copy-idp-sts</id>
                         <phase>generate-resources</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>unpack</goal>
                         </goals>
                         <configuration>
                             <artifactItems>
@@ -177,6 +177,7 @@
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
+                                    <outputDirectory>target/jetty/idp/webapps/fediz-idp</outputDirectory>
                                     <excludes>
                                         **\/idp-servlet.xml
                                     </excludes>
@@ -187,6 +188,7 @@
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
+                                    <outputDirectory>target/jetty/idp/webapps/fediz-idp-sts</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.cxf.fediz.systests</groupId>
@@ -194,6 +196,7 @@
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
+                                    <outputDirectory>target/jetty/rp/webapps/simpleWebapp</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.cxf.fediz.systests</groupId>
@@ -201,6 +204,7 @@
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
+                                    <outputDirectory>target/jetty/rp/webapps/springPreauthWebapp</outputDirectory>
                                 </artifactItem>                                
                             </artifactItems>
                             <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
