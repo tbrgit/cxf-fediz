@@ -29,9 +29,19 @@
 <!--    check if IDP token is still valid but relying party requested new authentication -->
         <if test="requestParameters.wfresh != null and requestParameters.wfresh.equals('0')" then="authenticationRequired" />
 <!--    check if IDP token is still valid but relying party requested new authentication via wfresh -->
-        <if test="requestParameters.wfresh != null and wfreshParser.authenticationRequired(requestParameters.wfresh, externalContext.sessionMap['IDP_TOKEN']) == true" then="authenticationRequired" else="rpTokenAction" />
+        <if test="requestParameters.wfresh != null" then="wfreshParserAction" else="rpTokenAction" />
     </decision-state>
     
+    <!-- parse wfresh parameter, provided by resource RP, overriding ttl from 'IDP_TOKEN' -->
+    <action-state id="wfreshParserAction">
+        <evaluate expression="wfreshParser.authenticationRequired(requestParameters.wfresh, externalContext.sessionMap['IDP_TOKEN'])" />
+        <transition on="true" to="authenticationRequired"/>
+        <transition on="false" to="rpTokenAction"/>
+<!--         <transition on-exception="java.lang.Throwable" to="scInternalServerError" /> -->
+<!--     wfresh invalid, ignore exception, force authentication -->
+        <transition on-exception="java.lang.Throwable" to="authenticationRequired" />
+    </action-state>
+
     <!-- select authentication support type -->
     <decision-state id="authenticationRequired">
         <on-entry>
