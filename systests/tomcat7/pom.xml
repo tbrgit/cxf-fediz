@@ -77,6 +77,18 @@
          <type>test-jar</type>
          <scope>test</scope>
       </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
    </dependencies>
    <build>
       <testResources>
@@ -124,6 +136,28 @@
                </execution>
             </executions>
          </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/tomcat/idp/webapps</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/test/webapps</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -143,6 +177,9 @@
                            <version>${project.version}</version>
                            <type>war</type>
                            <overWrite>true</overWrite>
+                            <excludes>
+                                **\/idp-servlet.xml
+                            </excludes>
                            <outputDirectory>target/tomcat/idp/webapps/fediz-idp</outputDirectory>
                         </artifactItem>
                         <artifactItem>
