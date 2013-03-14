@@ -247,8 +247,14 @@ public abstract class AbstractTests {
             
             Assert.assertNotNull("Form field 'wa' not found", formFields.get("wa"));
             Assert.assertNotNull("Form field 'wresult' not found", formFields.get("wresult"));
+//            for (FormField formField : formFields) {
+//                nvps.add(new BasicNameValuePair(formField.getName(), formField.getValues().get(0)));
+//            }
             for (FormField formField : formFields) {
-                nvps.add(new BasicNameValuePair(formField.getName(), formField.getValues().get(0)));
+                if (formField.getUserValueCount() != 0) {
+                    nvps.add(new BasicNameValuePair(formField.getName(),
+                            formField.getValues().get(0)));
+                }
             }
             
             HttpPost httppost = new HttpPost(postUrl);
